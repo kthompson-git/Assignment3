@@ -17,17 +17,17 @@ You must write a c++ program to implement the decompression process of the compr
 
 This thread will read the compressed file using input redirection:
 
-./exec_filename < input_filename
+` ./exec_filename < input_filename `
 
 where exec_filename is the name of your executable file and input_filename is the name of the file with the compressed message.
 
 The format of the input file is as follow:
 
-a 11110001110000111110
-n 11100000
-k 11000
-l 110
-p 1
+a 11110001110000111110  
+n 11100000  
+k 11000  
+l 110  
+p 1  
 
 Each line of the input file represents a symbol and its binary code. The symbols will appear in the file based on their priority (highest frequency + ASCII Value if the symbols have the same frequency). The possible symbols are letters, numbers, white space, and end-of-line (represented by the string <EOL>).
 
@@ -54,13 +54,13 @@ Each child thread will execute the following steps:
 
 For the previous input file, the corresponding output is:    
 
-p Binary code = 1
-l Binary code = 110
-k Binary code = 11000
-n Binary code = 11100000
-a Binary code = 11110001110000111110
-Decompressed file contents: 
-aaaannnaaakkllaaaaap 
+p Binary code = 1  
+l Binary code = 110  
+k Binary code = 11000  
+n Binary code = 11100000  
+a Binary code = 11110001110000111110  
+Decompressed file contents:   
+aaaannnaaakkllaaaaap   
  
 ### HINTS: 
 
