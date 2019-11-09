@@ -48,7 +48,8 @@ bool checkEOL(char first, char second)
 void *decode(void *dataRef)
 {
   struct Data *data = (struct Data *) dataRef;
-  std::string code = data->code, message = data->message;
+  std::string code = data->code, 
+  if (data->message != null) message = data->message;
   char sym = data->sym;
   int count = data->count;
   sem_wait(&sem);
