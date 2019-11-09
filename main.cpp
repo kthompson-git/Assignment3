@@ -49,7 +49,8 @@ void *decode(void *dataRef)
 {
   struct Data *data = (struct Data *) dataRef;
   std::string code = data->code, 
-  if (data->message != null) message = data->message;
+  if (data->message != null) std::string message = data->message;
+  else std::string message;
   char sym = data->sym;
   int count = data->count;
   sem_wait(&sem);
