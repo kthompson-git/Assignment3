@@ -2,8 +2,8 @@
 #include <iostream>
 #include <unistd.h>
 #include <stdio.h>
-// #include <semaphore.h>
-// #include <pthread.h>
+#include <semaphore.h>
+#include <pthread.h>
 #include <sys/types.h>
 
 // semaphore
@@ -48,7 +48,7 @@ bool checkEOL(char first, char second)
 void *decode(void *dataRef)
 {
   struct Data *data = (struct Data *) dataRef;
-  sem_wait(sem);
+  sem_wait(&sem);
   if (data->message == NULL)
   {
     for (int i = 0; i < data->count; i++)
@@ -119,14 +119,14 @@ int main(int argc, char *argv[])
   pthread_attr_destroy(&attr);
   for (int i = 0; i < charCount; i++ )
   {
-    sem_post(sem);
+    sem_post&sem);
     if (pthread_join(tid[i], &status)) 
     {
       std::cout << "Error:unable to join thread" << std::endl;
       exit(-1);
     }
   }
-  sem_unlink(sem);
+  sem_unlink(&sem);
 
 
   return 0;
