@@ -48,7 +48,7 @@ bool checkEOL(char first, char second)
 void *decode(void *dataRef)
 {
   struct Data *data = (struct Data *) dataRef;
-  std::string code = data->code, 
+  std::string code = data->code;
   if (data->message != null) std::string message = data->message;
   else std::string message;
   char sym = data->sym;
@@ -67,7 +67,7 @@ void *decode(void *dataRef)
     }
   }
   threadPrint(sym, code);
-  data->message = message;
+  for (int i = 0; i < message.length(); i++) data->message[i] = message[i];
   return NULL;
 }
 
