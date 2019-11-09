@@ -72,7 +72,7 @@ void *decode(void *dataRef)
     }
   }
   threadPrint(data->sym, data->code);
-  return;
+  return NULL;
 }
 
 int main(int argc, char *argv[]) 
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
   pthread_attr_destroy(&attr);
   for (int i = 0; i < charCount; i++ )
   {
-    sem_post&sem);
+    sem_post(&sem);
     if (pthread_join(tid[i], &status)) 
     {
       std::cout << "Error:unable to join thread" << std::endl;
