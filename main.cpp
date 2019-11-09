@@ -48,30 +48,34 @@ bool checkEOL(char first, char second)
 void *decode(void *dataRef)
 {
   struct Data *data = (struct Data *) dataRef;
+  std::string code = data->code, message = data->message;
+  char sym = data->sym;
+  int count = data->count;
   sem_wait(&sem);
-  if (data->message == NULL)
+  if (message == NULL)
   {
-    for (int i = 0; i < data->count; i++)
+    for (int i = 0; i < count; i++)
     {
-      data->message[i] = data->sym;
+      message[i] = sym;
     }
   }
   else
   {
     int msgIndex = 0;
-    std::string temp = data->message;
+    std::string temp = message;
     for (int i = 0; i < data->count; i++)
     {
-      if (data->code[i] == 1)
-        data->message[i] = data->sym;
-      else if (data->code[i] == 0)
+      if (code[i] == 1)
+        message[i] = sym;
+      else if (code[i] == 0)
       {
-        data->message[i] = temp[msgIndex];
+        message[i] = temp[msgIndex];
         msgIndex++;
       }
     }
   }
-  threadPrint(data->sym, data->code);
+  threadPrint(sym, code);
+  data->message = message;
   return NULL;
 }
 
