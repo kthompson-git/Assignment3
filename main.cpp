@@ -77,12 +77,15 @@ void *decode(void *dataRef)
 
 int main(int argc, char *argv[]) 
 {
+  printf("declaring variables\n");
   static struct Data *data = NULL;
   std::string line;
   int i, charCount = 0;
 
+  printf("init semaphore\n");
   sem_init(&sem, 0, 0);
 
+  printf("create thread\n");
   // create thread
   pthread_t tid[128];
   pthread_attr_t attr;
@@ -90,18 +93,24 @@ int main(int argc, char *argv[])
   void *status;
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
+  printf("entering while loop\n");
   while (std::getline(std::cin, line))
   {
+    printf("in while statement. line read: %s\n", line);
+
     if (checkEOL(line[0], line[1]))
     {
+      printf("EOL true\n");
       data->sym = '\n';
       i = 6;
     }
     else
     {
+      printf("EOL false\n");
       data->sym = line[0];
       i = 2;
     }
+    printf("set data count to zero\n");
     data->count = 0;
     for (; i < line.length(); i++)
     {
