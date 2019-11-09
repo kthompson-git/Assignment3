@@ -77,15 +77,15 @@ void *decode(void *dataRef)
 
 int main(int argc, char *argv[]) 
 {
-  printf("declaring variables\n");
-  static struct Data *data = NULL;
+  // printf("declaring variables\n");
+  static struct Data *data = new Data();
   std::string line;
   int i, charCount = 0;
 
-  printf("init semaphore\n");
+  // printf("init semaphore\n");
   sem_init(&sem, 0, 0);
 
-  printf("create thread\n");
+  // printf("create thread\n");
   // create thread
   pthread_t tid[128];
   pthread_attr_t attr;
@@ -93,24 +93,27 @@ int main(int argc, char *argv[])
   void *status;
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-  printf("entering while loop\n");
+  // printf("entering while loop\n");
   while (std::getline(std::cin, line))
   {
-    printf("in while statement. line read: %s\n", line);
+    // printf("in while statement. line read: \n"); std::cout << line << std::endl;
 
     if (checkEOL(line[0], line[1]))
     {
-      printf("EOL true\n");
+      // printf("EOL true\n");
       data->sym = '\n';
       i = 6;
     }
     else
     {
-      printf("EOL false\n");
+      // printf("EOL false\n");
+      // std::cout << "line[0] = " << line[0] << std::endl;
+      // std::cout << "data->sym = " << data->sym << std::endl;
       data->sym = line[0];
+      // printf("symbol set in struct\n");
       i = 2;
     }
-    printf("set data count to zero\n");
+    // printf("set data count to zero\n");
     data->count = 0;
     for (; i < line.length(); i++)
     {
