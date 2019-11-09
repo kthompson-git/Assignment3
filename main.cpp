@@ -52,26 +52,16 @@ void *decode(void *dataRef)
   char sym = data->sym;
   int count = data->count;
   sem_wait(&sem);
-  if (message == NULL)
+  int msgIndex = 0;
+  std::string temp = message;
+  for (int i = 0; i < count; i++)
   {
-    for (int i = 0; i < count; i++)
-    {
+    if (code[i] == 1)
       message[i] = sym;
-    }
-  }
-  else
-  {
-    int msgIndex = 0;
-    std::string temp = message;
-    for (int i = 0; i < data->count; i++)
+    else if (code[i] == 0)
     {
-      if (code[i] == 1)
-        message[i] = sym;
-      else if (code[i] == 0)
-      {
-        message[i] = temp[msgIndex];
-        msgIndex++;
-      }
+      message[i] = temp[msgIndex];
+      msgIndex++;
     }
   }
   threadPrint(sym, code);
