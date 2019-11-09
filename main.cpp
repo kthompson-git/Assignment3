@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
       exit(-1);
     }
   }
-  sem_unlink(&sem);
+  sem_destroy(&sem);
 
 
   return 0;
