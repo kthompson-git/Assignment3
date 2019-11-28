@@ -1,4 +1,5 @@
-#include <bits/stdc++.h>  
+#include <bits/stdc++.h>
+#include <fstream>
 #include <iostream>
 #include <unistd.h>
 #include <stdio.h>
@@ -55,7 +56,7 @@ void printList(Code *node)
 void writeToFile(std::string input, std::string fileName)
 {
   std::ofstream outFile;
-  outFile.open(fileName, ios::app);
+  outFile.open(fileName, std::ios::app);
   outFile << input << std::endl;
   outFile.close();
   return;
@@ -65,10 +66,10 @@ void readFile(std::string fileName)
 {
   std::string input;
   std::ifstream inFile;
-  infile.open(fileName, ios::in);
-  std::getline(infile, input);
-  infile.close();
-  writeToFile(input, "input")
+  inFile.open(fileName, std::ios::in);
+  std::getline(inFile, input);
+  inFile.close();
+  writeToFile(input, "input");
   return;
 }
 
@@ -82,7 +83,7 @@ void reverseFile()
     writeToFile(temp, fileName);
     fileLineCnt++;
   }
-  for (i = fileLineCnt; i >=0; i--)
+  for (int i = fileLineCnt - 1; i >= 0; i--)
   {
     fileName = "input" + std::to_string(i);
     readFile(fileName);
@@ -221,8 +222,12 @@ int main(int argc, char *argv[])
   pthread_attr_init(&attr);
   void *status;
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
-  while (std::cin.getline(sharedArray, 1000))
+  
+  reverseFile();
+  
+  std::ifstream inFile;
+  inFile.open("input", std::ios::in);
+  while (inFile.getline(sharedArray, 1000))
   {
     if (pthread_create(&tid[threadNum], NULL, decode, &sharedArray))
     {
