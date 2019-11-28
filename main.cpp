@@ -12,6 +12,10 @@
 // semaphore
 sem_t *semM, *semT;
 
+// semaphore debug global
+static int M = 0;
+static int T = 0;
+
 // structure for info
 struct Code
 {
@@ -191,7 +195,10 @@ void *decode(void *codeArray)
     for (i = 2; i <= msgSize; i++)
       newArray[i - 2] = tempArray[i];
   }  
+  //M++; printf("In Thread 1st Post: main = %d\n", M);
   sem_post(semM);
+  //T--; printf("In Thread Wait: thread = %d\n", T);
+  sem_wait(semT);
   threadPrint(key, newArray);
   replaceOnes(key, newArray);
   i = 0;
@@ -200,7 +207,44 @@ void *decode(void *codeArray)
     tempArray[i] = newArray[i];
     i++;
   }
+  tempArray[i] = '\0';
+  //M++; printf("In Thread 2nd Post: main = %d\n", M);
+  sem_post(semM);
+  //printf("Returning from thread");
   return NULL;
+}
+
+// copy array
+void copyArray(char sharedMem[], char temp[])
+{
+  int i = 0;
+  while (sharedMem[i])
+  {
+    temp[i] = sharedMem[i];
+    i++;
+  }
+  //std::cout << "copy array: " << temp << std::endl;
+  //std::cout << "shared array: " << sharedMem << std::endl;
+  return;
+}
+
+// combine returned decoded messages
+void combineMessages(char sharedMem[], char temp[])
+{
+  //std::cout << "temp array: " << temp << std::endl;
+  //std::cout << "shared array: " << sharedMem << std::endl;
+  int i = 0, j = 0;
+  while (sharedMem[i])
+  {
+    if (sharedMem[i] == '0')
+    {
+      sharedMem[i] = temp[j];
+      j++;
+    }
+    i++;
+  }
+  copyArray(sharedMem, temp);
+  return;
 }
 
 int main(int argc, char *argv[]) 
@@ -216,6 +260,9 @@ int main(int argc, char *argv[])
   
   // declare shared memory between threads
   static char sharedArray[1000];
+  
+  // copy of sharedArray when combing decoded messages
+  char tempMsg[1000];
 
   // create thread properties
   int threadNum = 0; // keep track of num threads to join later
@@ -237,28 +284,32 @@ int main(int argc, char *argv[])
       fprintf(stderr, "Error creating thread.\n");
       exit(1);
     }
+    //M--; printf("Main Loop Wait: main = %d\n", M);
     sem_wait(semM);
     threadNum++;
-
-    // windows OS test
-    // std::cout << sharedArray << std::endl;
-    // decodeWindows(sharedArray);    
-    // push(&head, sharedArray);
-
-
   }
 
   pthread_attr_destroy(&attr);
   for (int i = 0; i < threadNum; i++ )
   {
+    //T++; printf("Thread Destroy Loop Post: thread = %d\n", T);
     sem_post(semT);
-    
+    //M--; printf("Thread Destroy Loop Wait: main = %d\n", M);
+    sem_wait(semM);
+    if (i == 0)
+      copyArray(sharedArray, tempMsg);
+    else
+      combineMessages(sharedArray, tempMsg);
     if (pthread_join(tid[i], &status)) 
     {
       std::cout << "Error:unable to join thread" << std::endl;
       exit(-1);
     }
   }
+  
+  std::cout << "Decompressed file contents:\n" << sharedArray << std::endl;
+  
+  system("rm input*");
   sem_unlink(nameM);
   sem_unlink(nameT);
 
