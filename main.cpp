@@ -12,50 +12,6 @@
 // semaphore
 sem_t *semM, *semT;
 
-// semaphore debug global
-static int M = 0;
-static int T = 0;
-
-// structure for info
-struct Code
-{
-	public:
-    char partialMessage[1000];
-    Code *next;
-};
-
-// push new node to head of linked list
-void push(Code** head_ref, char msg[])  
-{ 
-  // printf("In push function\n"); 
-  Code* newNode = new Code();
-  // printf("Created new node\n");  
-  int i = 0;
-  // printf("Entering while loop\n");
-  while (msg[i])
-  {
-    // printf("%c", msg[i]);
-    newNode->partialMessage[i] = msg[i];
-    i++;  
-  }
-  // printf("Copied msg into partialMessage\n");
-  newNode->next = (*head_ref);
-  // printf("Pointed new node->next node to head\n");
-  (*head_ref) = newNode;
-  // printf("Made new node the new head\n");  
-  return;
-} 
-
-void printList(Code *node)  
-{  
-  while (node != NULL)  
-  {  
-    std::cout << node->partialMessage << std::endl;  
-    node = node->next;  
-  } 
-  return;
-}  
-
 // function to write to file
 void writeToFile(std::string input, std::string fileName)
 {
@@ -66,6 +22,7 @@ void writeToFile(std::string input, std::string fileName)
   return;
 }
 
+// concatenate multiple file contents to one
 void readFile(std::string fileName)
 {
   std::string input;
@@ -77,6 +34,7 @@ void readFile(std::string fileName)
   return;
 }
 
+// reverse reading order for main function
 void reverseFile()
 {
   int fileLineCnt = 0;
@@ -92,9 +50,10 @@ void reverseFile()
     fileName = "input" + std::to_string(i);
     readFile(fileName);
   }
-
+  return;
 }
 
+// print message received by thread
 void threadPrint(char sym, char code[])
 {
   if (sym == '\n')
@@ -136,45 +95,6 @@ void replaceOnes(char key, char code[])
   return;
 }
 
-// decode function test on Windows OS
-void decodeWindows(char codeArray[])
-{
-  int msgSize = messageSize(codeArray);
-  char tempArray[msgSize - 2];
-  char key = codeArray[0];
-  if (checkEOL(tempArray[0], tempArray[1]))
-  {
-    for (int i = 6; i <= msgSize; i++)
-    {
-      // printf("Char:\t%c\n", codeArray[i]);
-      tempArray[i - 6] = codeArray[i];    
-    }
-    // printf("Key:\t%c\n", key);
-    replaceOnes(key, tempArray);
-    // std::cout << "Decoded: " << tempArray << std::endl;
-  }
-  else
-  {
-    for (int i = 2; i <= msgSize; i++)
-    {
-      // printf("Char:\t%c\n", codeArray[i]);
-      tempArray[i - 2] = codeArray[i];    
-    }
-    // printf("Key:\t%c\n", key);
-    replaceOnes(key, tempArray);
-    // std::cout << "Decoded: " << tempArray << std::endl;
-  }
-    
-  int i = 0;
-  while (tempArray[i])
-  {
-    codeArray[i] = tempArray[i];
-    i++;
-  }
-  codeArray[i] = '\0';
-  return;
-}
-
 // decoding thread
 void *decode(void *codeArray)
 {
@@ -195,9 +115,7 @@ void *decode(void *codeArray)
     for (i = 2; i <= msgSize; i++)
       newArray[i - 2] = tempArray[i];
   }  
-  //M++; printf("In Thread 1st Post: main = %d\n", M);
   sem_post(semM);
-  //T--; printf("In Thread Wait: thread = %d\n", T);
   sem_wait(semT);
   threadPrint(key, newArray);
   replaceOnes(key, newArray);
@@ -208,9 +126,7 @@ void *decode(void *codeArray)
     i++;
   }
   tempArray[i] = '\0';
-  //M++; printf("In Thread 2nd Post: main = %d\n", M);
   sem_post(semM);
-  //printf("Returning from thread");
   return NULL;
 }
 
@@ -223,16 +139,12 @@ void copyArray(char sharedMem[], char temp[])
     temp[i] = sharedMem[i];
     i++;
   }
-  //std::cout << "copy array: " << temp << std::endl;
-  //std::cout << "shared array: " << sharedMem << std::endl;
   return;
 }
 
 // combine returned decoded messages
 void combineMessages(char sharedMem[], char temp[])
 {
-  //std::cout << "temp array: " << temp << std::endl;
-  //std::cout << "shared array: " << sharedMem << std::endl;
   int i = 0, j = 0;
   while (sharedMem[i])
   {
@@ -284,7 +196,6 @@ int main(int argc, char *argv[])
       fprintf(stderr, "Error creating thread.\n");
       exit(1);
     }
-    //M--; printf("Main Loop Wait: main = %d\n", M);
     sem_wait(semM);
     threadNum++;
   }
@@ -292,9 +203,7 @@ int main(int argc, char *argv[])
   pthread_attr_destroy(&attr);
   for (int i = 0; i < threadNum; i++ )
   {
-    //T++; printf("Thread Destroy Loop Post: thread = %d\n", T);
     sem_post(semT);
-    //M--; printf("Thread Destroy Loop Wait: main = %d\n", M);
     sem_wait(semM);
     if (i == 0)
       copyArray(sharedArray, tempMsg);
