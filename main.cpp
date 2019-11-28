@@ -91,7 +91,7 @@ void reverseFile()
 
 }
 
-void threadPrint(char sym, std::string code)
+void threadPrint(char sym, char code[])
 {
   if (sym == '\n')
     std::cout << "<EOL> Binary code = " << code << std::endl;
@@ -176,7 +176,7 @@ void *decode(void *codeArray)
 {
   char *tempArray = (char *)codeArray;
   int msgSize = messageSize(tempArray);
-  char  newArray[msgSize - 2];
+  char  newArray[msgSize];
   char key;
   int i;
   if (checkEOL(tempArray[0], tempArray[1]))
@@ -190,14 +190,16 @@ void *decode(void *codeArray)
     key = tempArray[0];
     for (i = 2; i <= msgSize; i++)
       newArray[i - 2] = tempArray[i];
-  }
-  
-  std::cout << "Encoded: " << newArray << std::endl;
-  replaceOnes(key, newArray);
-  std::cout << "Decoded: " << newArray << std::endl;
-  
-  
+  }  
   sem_post(semM);
+  threadPrint(key, newArray);
+  replaceOnes(key, newArray);
+  i = 0;
+  while (newArray[i])
+  {
+    tempArray[i] = newArray[i];
+    i++;
+  }
   return NULL;
 }
 
@@ -223,6 +225,7 @@ int main(int argc, char *argv[])
   void *status;
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   
+  // reverse file contents
   reverseFile();
   
   std::ifstream inFile;
@@ -244,13 +247,12 @@ int main(int argc, char *argv[])
 
 
   }
-  // printf("\nPrinting linked list\n\n");
-  printList(head);
 
   pthread_attr_destroy(&attr);
   for (int i = 0; i < threadNum; i++ )
   {
     sem_post(semT);
+    
     if (pthread_join(tid[i], &status)) 
     {
       std::cout << "Error:unable to join thread" << std::endl;
