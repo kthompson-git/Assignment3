@@ -51,6 +51,45 @@ void printList(Code *node)
   return;
 }  
 
+// function to write to file
+void writeToFile(std::string input, std::string fileName)
+{
+  std::ofstream outFile;
+  outFile.open(fileName, ios::app);
+  outFile << input << std::endl;
+  outFile.close();
+  return;
+}
+
+void readFile(std::string fileName)
+{
+  std::string input;
+  std::ifstream inFile;
+  infile.open(fileName, ios::in);
+  std::getline(infile, input);
+  infile.close();
+  writeToFile(input, "input")
+  return;
+}
+
+void reverseFile()
+{
+  int fileLineCnt = 0;
+  std::string temp, fileName;
+  while (std::getline(std::cin, temp))
+  {
+    fileName = "input" + std::to_string(fileLineCnt);
+    writeToFile(temp, fileName);
+    fileLineCnt++;
+  }
+  for (i = fileLineCnt; i >=0; i--)
+  {
+    fileName = "input" + std::to_string(i);
+    readFile(fileName);
+  }
+
+}
+
 void threadPrint(char sym, std::string code)
 {
   if (sym == '\n')
