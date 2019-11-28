@@ -16,7 +16,7 @@ sem_t *semM, *semT;
 struct Code
 {
 	public:
-    char code[1000];
+    char code[200];
     Code *next;
 };
 
@@ -155,23 +155,25 @@ int main(int argc, char *argv[])
   struct Code *head = NULL;
   
   // declare shared memory between threads
-  static char sharedArray[1000];
+  static char sharedArray[250];
   
   // copy of sharedArray when combing decoded messages
-  char tempMsg[1000];
+  char tempMsg[250];
+
+  int i = 0; 
+  while (std::cin.getline(sharedArray, 250))
+  {
+    push(&head, sharedArray);
+    i++;
+  }
 
   // create thread properties
-  int i = 0, threadNum = 0; // keep track of num threads to join later
-  pthread_t tid[128]; // account for all ASCII characters
+  int threadNum = 0; // keep track of num threads to join later
+  pthread_t tid[i]; // account for all ASCII characters
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   void *status;
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-  
-  std::ifstream inFile;
-  inFile.open("input", std::ios::in);
-  while (std::cin.getline(sharedArray, 1000))
-    push(&head, sharedArray);
   
   while (head != NULL)
   {
