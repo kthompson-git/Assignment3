@@ -112,7 +112,7 @@ void *decode(void *codeArray)
 // copy array
 void strToArray(std::string code, char sharedMem[])
 {
-  for (int i = 0; i < msg.length(); i++)
+  for (int i = 0; i < code.length(); i++)
     sharedMem[i] = code[i];
   return;
 }
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
   }
 
   // declare shared memory between threads
-  static char sharedArray[maxLength];
+  static char sharedArray[100];
   
   // copy of sharedArray when combing decoded messages
   char tempMsg[maxLength];
