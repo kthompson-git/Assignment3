@@ -2,9 +2,11 @@
 #include <iostream>
 #include <unistd.h>
 #include <stdio.h>
-// #include <semaphore.h>
-// #include <pthread.h>
+#include <pthread.h>
 #include <sys/types.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <semaphore.h>
 
 // semaphore
 sem_t *semM, *semT;
@@ -96,14 +98,29 @@ void decodeWindows(char codeArray[])
   int msgSize = messageSize(codeArray);
   char tempArray[msgSize - 2];
   char key = codeArray[0];
-  for (int i = 2; i <= msgSize; i++)
+  if (checkEOL(tempArray[0], tempArray[1]))
   {
-    // printf("Char:\t%c\n", codeArray[i]);
-    tempArray[i - 2] = codeArray[i];    
+    for (int i = 6; i <= msgSize; i++)
+    {
+      // printf("Char:\t%c\n", codeArray[i]);
+      tempArray[i - 6] = codeArray[i];    
+    }
+    // printf("Key:\t%c\n", key);
+    replaceOnes(key, tempArray);
+    // std::cout << "Decoded: " << tempArray << std::endl;
   }
-  // printf("Key:\t%c\n", key);
-  replaceOnes(key, tempArray);
-  // std::cout << "Decoded: " << tempArray << std::endl;
+  else
+  {
+    for (int i = 2; i <= msgSize; i++)
+    {
+      // printf("Char:\t%c\n", codeArray[i]);
+      tempArray[i - 2] = codeArray[i];    
+    }
+    // printf("Key:\t%c\n", key);
+    replaceOnes(key, tempArray);
+    // std::cout << "Decoded: " << tempArray << std::endl;
+  }
+    
   int i = 0;
   while (tempArray[i])
   {
@@ -115,9 +132,32 @@ void decodeWindows(char codeArray[])
 }
 
 // decoding thread
-void *decode(void *codeString)
+void *decode(void *codeArray)
 {
-  char *tempArray = (char *)codeString;
+  char *tempArray = (char *)codeArray;
+  int msgSize = messageSize(tempArray);
+  char  newArray[msgSize - 2];
+  char key;
+  int i;
+  if (checkEOL(tempArray[0], tempArray[1]))
+  {
+    key = '\n';
+    for (i = 6; i <= msgSize; i++)
+      newArray[i - 6] = tempArray[i];
+  }
+  else
+  {
+    key = tempArray[0];
+    for (i = 2; i <= msgSize; i++)
+      newArray[i - 2] = tempArray[i];
+  }
+  
+  std::cout << "Encoded: " << newArray << std::endl;
+  replaceOnes(key, newArray);
+  std::cout << "Decoded: " << newArray << std::endl;
+  
+  
+  sem_post(semM);
   return NULL;
 }
 
