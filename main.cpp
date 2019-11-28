@@ -36,13 +36,14 @@ void push(Code **headRef, char msg[])
 } 
 
 // pop node from front of linked list
-void pop(Code **head) 
+void pop(Code *head) 
 { 
     if (head == NULL) 
-        return NULL; 
+        return; 
     Code *temp = head; 
     head = head->next;  
-    delete temp;   
+    std::cout << "guessing the error is here" << std::endl;
+    //delete temp;   
     return; 
 } 
 
@@ -170,11 +171,13 @@ void *decode(void *codeArray)
 void copyArray(char sharedMem[], char temp[])
 {
   int i = 0;
+  //std::cout << "In copy array: temp = " << temp << std::endl;
   while (sharedMem[i])
   {
     temp[i] = sharedMem[i];
     i++;
   }
+  //std::cout << "In copy array: shared = " << sharedMem << std::endl;
   return;
 }
 
@@ -213,7 +216,7 @@ int main(int argc, char *argv[])
   char tempMsg[1000];
 
   // create thread properties
-  int threadNum = 0; // keep track of num threads to join later
+  int i = 0, threadNum = 0; // keep track of num threads to join later
   pthread_t tid[128]; // account for all ASCII characters
   pthread_attr_t attr;
   pthread_attr_init(&attr);
@@ -225,14 +228,27 @@ int main(int argc, char *argv[])
   
   std::ifstream inFile;
   inFile.open("input", std::ios::in);
-  while (inFile.getline(sharedArray, 1000))
+  while (std::cin.getline(sharedArray, 1000))
   {
+    push(&head, sharedArray);
+    //std::cout << head->code << std::endl;
+  }
+  
+  while (head != NULL)
+  {
+    //std::cout << head->code << std::endl;
+    copyArray(head->code, sharedArray);
+    //std::cout << "Shared mem: " << sharedArray << std::endl;
     if (pthread_create(&tid[threadNum], NULL, decode, &sharedArray))
     {
       fprintf(stderr, "Error creating thread.\n");
       exit(1);
     }
+
     sem_wait(semM);
+//    std::cout << "Before pop code: " << head->code << std::endl;
+    head = head->next;
+//   std::cout << "After pop code: " << head->code << std::endl;
     threadNum++;
   }
 
@@ -254,7 +270,7 @@ int main(int argc, char *argv[])
   
   std::cout << "Decompressed file contents:\n" << sharedArray << std::endl << std::endl;
   
-  system("rm input*");
+  //system("rm input*");
   sem_unlink(nameM);
   sem_unlink(nameT);
 
