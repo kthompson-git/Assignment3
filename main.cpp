@@ -35,59 +35,6 @@ void push(Code **headRef, char msg[])
   return;
 } 
 
-// pop node from front of linked list
-void pop(Code *head) 
-{ 
-    if (head == NULL) 
-        return; 
-    Code *temp = head; 
-    head = head->next;  
-    std::cout << "guessing the error is here" << std::endl;
-    //delete temp;   
-    return; 
-} 
-
-// function to write to file
-// void writeToFile(std::string input, std::string fileName)
-// {
-//   std::ofstream outFile;
-//   outFile.open(fileName, std::ios::app);
-//   outFile << input << std::endl;
-//   outFile.close();
-//   return;
-// }
-
-// // concatenate multiple file contents to one
-// void readFile(std::string fileName)
-// {
-//   std::string input;
-//   std::ifstream inFile;
-//   inFile.open(fileName, std::ios::in);
-//   std::getline(inFile, input);
-//   inFile.close();
-//   writeToFile(input, "input");
-//   return;
-// }
-
-// // reverse reading order for main function
-// void reverseFile()
-// {
-//   int fileLineCnt = 0;
-//   std::string temp, fileName;
-//   while (std::getline(std::cin, temp))
-//   {
-//     fileName = "input" + std::to_string(fileLineCnt);
-//     writeToFile(temp, fileName);
-//     fileLineCnt++;
-//   }
-//   for (int i = fileLineCnt - 1; i >= 0; i--)
-//   {
-//     fileName = "input" + std::to_string(i);
-//     readFile(fileName);
-//   }
-//   return;
-// }
-
 // print message received by thread
 void threadPrint(char sym, char code[])
 {
@@ -113,9 +60,8 @@ int messageSize(char codeArray[])
   int i = 0;
   while (codeArray[i])
     i++;
-  // printf("message size:\t%d\n", i);
-  return i;
 }
+  return i;
 
 // replace 1's with character
 void replaceOnes(char key, char code[])
@@ -171,13 +117,11 @@ void *decode(void *codeArray)
 void copyArray(char sharedMem[], char temp[])
 {
   int i = 0;
-  //std::cout << "In copy array: temp = " << temp << std::endl;
   while (sharedMem[i])
   {
     temp[i] = sharedMem[i];
     i++;
   }
-  //std::cout << "In copy array: shared = " << sharedMem << std::endl;
   return;
 }
 
@@ -223,22 +167,14 @@ int main(int argc, char *argv[])
   void *status;
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   
-  // reverse file contents
-  // reverseFile();
-  
   std::ifstream inFile;
   inFile.open("input", std::ios::in);
   while (std::cin.getline(sharedArray, 1000))
-  {
     push(&head, sharedArray);
-    //std::cout << head->code << std::endl;
-  }
   
   while (head != NULL)
   {
-    //std::cout << head->code << std::endl;
     copyArray(head->code, sharedArray);
-    //std::cout << "Shared mem: " << sharedArray << std::endl;
     if (pthread_create(&tid[threadNum], NULL, decode, &sharedArray))
     {
       fprintf(stderr, "Error creating thread.\n");
@@ -246,9 +182,7 @@ int main(int argc, char *argv[])
     }
 
     sem_wait(semM);
-//    std::cout << "Before pop code: " << head->code << std::endl;
     head = head->next;
-//   std::cout << "After pop code: " << head->code << std::endl;
     threadNum++;
   }
 
@@ -270,7 +204,6 @@ int main(int argc, char *argv[])
   
   std::cout << "Decompressed file contents:\n" << sharedArray << std::endl << std::endl;
   
-  //system("rm input*");
   sem_unlink(nameM);
   sem_unlink(nameT);
 
