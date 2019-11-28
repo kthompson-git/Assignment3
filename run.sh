@@ -12,3 +12,6 @@ echo
 echo "Test 4"
 ./main.exe < test4.txt
 echo
+echo "Test 5"
+./main.exe < test5.txt
+echo
