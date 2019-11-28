@@ -7,7 +7,7 @@
 #include <sys/types.h>
 
 // semaphore
-// sem_t sem;
+sem_t *semM, *semT;
 
 // structure for info
 struct Code
@@ -117,59 +117,64 @@ void decodeWindows(char codeArray[])
 // decoding thread
 void *decode(void *codeString)
 {
-  
+  char *tempArray = (char *)codeString;
   return NULL;
 }
 
 int main(int argc, char *argv[]) 
 {
+  // set up semaphores
+  char nameM[] = "KMAIN"; // semaphore for main thread
+  char nameT[] = "KTHREAD"; // semaphore for child threads
+  semM = sem_open(nameM, O_CREAT, 0600 , 0);
+  semT = sem_open(nameT, O_CREAT, 0600 , 0);
 
   // start linked list for data
   struct Code *head = NULL;
   
   // declare shared memory between threads
   static char sharedArray[1000];
-  
-  // initialize semaphore
-  // sem_init(&sem, 0, 0);
 
-  // create thread array
-  // pthread_t tid[128];
-  // pthread_attr_t attr;
-  // pthread_attr_init(&attr);
-  // void *status;
-  // pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  // create thread properties
+  int threadNum = 0; // keep track of num threads to join later
+  pthread_t tid[128]; // account for all ASCII characters
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
+  void *status;
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
   while (std::cin.getline(sharedArray, 1000))
   {
-    // if (pthread_create(&tid[charCount], NULL, decode, data))
-    // {
-    //   fprintf(stderr, "Error creating thread.\n");
-    //   exit(1);
-    // }
+    if (pthread_create(&tid[threadNum], NULL, decode, &sharedArray))
+    {
+      fprintf(stderr, "Error creating thread.\n");
+      exit(1);
+    }
+    sem_wait(semM);
+    threadNum++;
 
     // windows OS test
-    std::cout << sharedArray << std::endl;
-    decodeWindows(sharedArray);    
-    push(&head, sharedArray);
+    // std::cout << sharedArray << std::endl;
+    // decodeWindows(sharedArray);    
+    // push(&head, sharedArray);
 
 
   }
   // printf("\nPrinting linked list\n\n");
   printList(head);
 
-  // pthread_attr_destroy(&attr);
-  // for (int i = 0; i < charCount; i++ )
-  // {
-  //   sem_post(&sem);
-  //   if (pthread_join(tid[i], &status)) 
-  //   {
-  //     std::cout << "Error:unable to join thread" << std::endl;
-  //     exit(-1);
-  //   }
-  // }
-  // sem_destroy(&sem);
-
+  pthread_attr_destroy(&attr);
+  for (int i = 0; i < threadNum; i++ )
+  {
+    sem_post(semT);
+    if (pthread_join(tid[i], &status)) 
+    {
+      std::cout << "Error:unable to join thread" << std::endl;
+      exit(-1);
+    }
+  }
+  sem_unlink(nameM);
+  sem_unlink(nameT);
 
   return 0;
 }
