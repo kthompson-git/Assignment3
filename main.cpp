@@ -94,8 +94,8 @@ void *decode(void *codeArray)
     for (i = 2; i <= msgSize; i++)
       newArray[i - 2] = tempArray[i];
   }  
-  sem_post(&semM);
-  sem_wait(&semT);
+  sem_post(&semM); // thread created local copy, let main resume
+  sem_wait(&semT); // pause thread until all are created; create queue
   threadPrint(key, newArray);
   replaceOnes(key, newArray);
   i = 0;
@@ -105,14 +105,14 @@ void *decode(void *codeArray)
     i++;
   }
   tempArray[i] = '\0';
-  sem_post(&semM);
+  sem_post(&semM); // thread wrote to shared memory, let main resume
   return NULL;
 }
 
 // copy array
 void strToArray(std::string code, char sharedMem[])
 {
-  for (int i = 0; i < code.length(); i++)
+  for (int i = 0; i <= code.length(); i++)
     sharedMem[i] = code[i];
   return;
 }
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
       exit(1);
     }
 
-    sem_wait(&semM);
+    sem_wait(&semM); // pause main to wait for thread to create local instance
     head = head->next;
     threadNum++;
   }
@@ -204,8 +204,8 @@ int main(int argc, char *argv[])
   pthread_attr_destroy(&attr);
   for (int i = 0; i < threadNum; i++ )
   {
-    sem_post(&semT);
-    sem_wait(&semM);
+    sem_post(&semT); // loop to resume threads from queue
+    sem_wait(&semM); // pause main while thread stores partial decoded message to shared memory
     if (i == 0)
       copyArray(sharedArray, tempMsg);
     else
