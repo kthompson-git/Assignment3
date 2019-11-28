@@ -124,6 +124,8 @@ void replaceOnes(char key, char code[])
   {
     if (code[i] == '1')
       code[i] = key;
+    else
+      code[i] = '\t';          
     i++;
   }
   return;
@@ -182,7 +184,7 @@ void combineMessages(char sharedMem[], char temp[])
   int i = 0, j = 0;
   while (sharedMem[i])
   {
-    if (sharedMem[i] == '0')
+    if (sharedMem[i] == '\t')
     {
       sharedMem[i] = temp[j];
       j++;
@@ -250,7 +252,7 @@ int main(int argc, char *argv[])
     }
   }
   
-  std::cout << "Decompressed file contents:\n" << sharedArray << std::endl;
+  std::cout << "Decompressed file contents:\n" << sharedArray << std::endl << std::endl;
   
   system("rm input*");
   sem_unlink(nameM);
