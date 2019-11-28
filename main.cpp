@@ -10,7 +10,7 @@
 #include <semaphore.h>
 
 // semaphore
-sem_t semM, semT;
+static sem_t semM, semT;
 
 // structure for temp storage of input lines
 struct Code
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
     }
   }
   
-  std::cout << "Decompressed file contents:\n" << sharedArray << std::endl << std::endl;
+  std::cout << "Decompressed file contents:\n" << sharedArray << std::endl;
   
   sem_destroy(&semM);
   sem_destroy(&semT);
