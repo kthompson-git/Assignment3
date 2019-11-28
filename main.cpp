@@ -60,8 +60,9 @@ int messageSize(char codeArray[])
   int i = 0;
   while (codeArray[i])
     i++;
-}
   return i;
+}
+
 
 // replace 1's with character
 void replaceOnes(char key, char code[])
