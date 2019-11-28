@@ -10,7 +10,7 @@
 #include <semaphore.h>
 
 // semaphore
-sem_t *semM, *semT;
+sem_t semM, semT;
 
 // structure for temp storage of input lines
 struct Code
@@ -94,8 +94,8 @@ void *decode(void *codeArray)
     for (i = 2; i <= msgSize; i++)
       newArray[i - 2] = tempArray[i];
   }  
-  sem_post(semM);
-  sem_wait(semT);
+  sem_post(&semM);
+  sem_wait(&semT);
   threadPrint(key, newArray);
   replaceOnes(key, newArray);
   i = 0;
@@ -105,7 +105,7 @@ void *decode(void *codeArray)
     i++;
   }
   tempArray[i] = '\0';
-  sem_post(semM);
+  sem_post(&semM);
   return NULL;
 }
 
@@ -149,10 +149,16 @@ void combineMessages(char sharedMem[], char temp[])
 int main(int argc, char *argv[]) 
 {
   // set up semaphores
-  char nameM[] = "KMAIN"; // semaphore for main thread
-  char nameT[] = "KTHREAD"; // semaphore for child threads
-  semM = sem_open(nameM, O_CREAT, 0600 , 0);
-  semT = sem_open(nameT, O_CREAT, 0600 , 0);
+  if (sem_init (&semM, 0, 0) < 0) 
+  {
+    printf("semaphore initilization error");
+    return(0);
+  }
+  if (sem_init (&semT, 0, 0) < 0) 
+  {
+    printf("semaphore initilization error");
+    return(0);
+  }
 
   // start linked list for data
   struct Code *head = NULL;
@@ -190,7 +196,7 @@ int main(int argc, char *argv[])
       exit(1);
     }
 
-    sem_wait(semM);
+    sem_wait(&semM);
     head = head->next;
     threadNum++;
   }
@@ -198,8 +204,8 @@ int main(int argc, char *argv[])
   pthread_attr_destroy(&attr);
   for (int i = 0; i < threadNum; i++ )
   {
-    sem_post(semT);
-    sem_wait(semM);
+    sem_post(&semT);
+    sem_wait(&semM);
     if (i == 0)
       copyArray(sharedArray, tempMsg);
     else
@@ -213,8 +219,8 @@ int main(int argc, char *argv[])
   
   std::cout << "Decompressed file contents:\n" << sharedArray << std::endl << std::endl;
   
-  sem_unlink(nameM);
-  sem_unlink(nameT);
+  sem_destroy(&semM);
+  sem_destroy(&semT);
 
   return 0;
 }
