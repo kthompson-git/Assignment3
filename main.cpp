@@ -12,46 +12,80 @@
 // semaphore
 sem_t *semM, *semT;
 
+// structure for temp storage of input lines
+struct Code
+{
+	public:
+    char code[1000];
+    Code *next;
+};
+
+// push new node to head of linked list
+void push(Code **headRef, char msg[])  
+{ 
+  Code* newNode = new Code();
+  int i = 0;
+  while (msg[i])
+  {
+    newNode->code[i] = msg[i];
+    i++;  
+  }
+  newNode->next = (*headRef);
+  (*headRef) = newNode;
+  return;
+} 
+
+// pop node from front of linked list
+void pop(Code **head) 
+{ 
+    if (head == NULL) 
+        return NULL; 
+    Code *temp = head; 
+    head = head->next;  
+    delete temp;   
+    return; 
+} 
+
 // function to write to file
-void writeToFile(std::string input, std::string fileName)
-{
-  std::ofstream outFile;
-  outFile.open(fileName, std::ios::app);
-  outFile << input << std::endl;
-  outFile.close();
-  return;
-}
+// void writeToFile(std::string input, std::string fileName)
+// {
+//   std::ofstream outFile;
+//   outFile.open(fileName, std::ios::app);
+//   outFile << input << std::endl;
+//   outFile.close();
+//   return;
+// }
 
-// concatenate multiple file contents to one
-void readFile(std::string fileName)
-{
-  std::string input;
-  std::ifstream inFile;
-  inFile.open(fileName, std::ios::in);
-  std::getline(inFile, input);
-  inFile.close();
-  writeToFile(input, "input");
-  return;
-}
+// // concatenate multiple file contents to one
+// void readFile(std::string fileName)
+// {
+//   std::string input;
+//   std::ifstream inFile;
+//   inFile.open(fileName, std::ios::in);
+//   std::getline(inFile, input);
+//   inFile.close();
+//   writeToFile(input, "input");
+//   return;
+// }
 
-// reverse reading order for main function
-void reverseFile()
-{
-  int fileLineCnt = 0;
-  std::string temp, fileName;
-  while (std::getline(std::cin, temp))
-  {
-    fileName = "input" + std::to_string(fileLineCnt);
-    writeToFile(temp, fileName);
-    fileLineCnt++;
-  }
-  for (int i = fileLineCnt - 1; i >= 0; i--)
-  {
-    fileName = "input" + std::to_string(i);
-    readFile(fileName);
-  }
-  return;
-}
+// // reverse reading order for main function
+// void reverseFile()
+// {
+//   int fileLineCnt = 0;
+//   std::string temp, fileName;
+//   while (std::getline(std::cin, temp))
+//   {
+//     fileName = "input" + std::to_string(fileLineCnt);
+//     writeToFile(temp, fileName);
+//     fileLineCnt++;
+//   }
+//   for (int i = fileLineCnt - 1; i >= 0; i--)
+//   {
+//     fileName = "input" + std::to_string(i);
+//     readFile(fileName);
+//   }
+//   return;
+// }
 
 // print message received by thread
 void threadPrint(char sym, char code[])
@@ -185,7 +219,7 @@ int main(int argc, char *argv[])
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   
   // reverse file contents
-  reverseFile();
+  // reverseFile();
   
   std::ifstream inFile;
   inFile.open("input", std::ios::in);
