@@ -1,4 +1,5 @@
 *.exe
 *.pdf
 *.md
+*.png
 out*

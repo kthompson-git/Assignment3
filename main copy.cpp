@@ -16,15 +16,20 @@ sem_t *semM, *semT;
 struct Code
 {
 	public:
-    std::string code;
+    char code[200];
     Code *next;
 };
 
 // push new node to head of linked list
-void push(Code **headRef, std::string msg)  
+void push(Code **headRef, char msg[])  
 { 
   Code* newNode = new Code();
-  newNode->code = msg;
+  int i = 0;
+  while (msg[i])
+  {
+    newNode->code[i] = msg[i];
+    i++;  
+  }
   newNode->next = (*headRef);
   (*headRef) = newNode;
   return;
@@ -110,14 +115,6 @@ void *decode(void *codeArray)
 }
 
 // copy array
-void strToArray(std::string code, char sharedMem[])
-{
-  for (int i = 0; i < code.length(); i++)
-    sharedMem[i] = code[i];
-  return;
-}
-
-// copy array
 void copyArray(char sharedMem[], char temp[])
 {
   int i = 0;
@@ -157,25 +154,22 @@ int main(int argc, char *argv[])
   // start linked list for data
   struct Code *head = NULL;
   
-  std::string code;
-  int i = 0, maxLength; 
-  while (std::getline(std::cin, code))
+  // declare shared memory between threads
+  static char sharedArray[250];
+  
+  // copy of sharedArray when combing decoded messages
+  char tempMsg[250];
+
+  int i = 0; 
+  while (std::cin.getline(sharedArray, 250))
   {
-    push(&head, code);
-    if (i == 0)
-      maxLength = code.length();
+    push(&head, sharedArray);
     i++;
   }
 
-  // declare shared memory between threads
-  static char sharedArray[100];
-  
-  // copy of sharedArray when combing decoded messages
-  char tempMsg[maxLength];
-
   // create thread properties
   int threadNum = 0; // keep track of num threads to join later
-  pthread_t tid[i]; 
+  pthread_t tid[i]; // account for all ASCII characters
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   void *status;
@@ -183,7 +177,7 @@ int main(int argc, char *argv[])
   
   while (head != NULL)
   {
-    strToArray(head->code, sharedArray);
+    copyArray(head->code, sharedArray);
     if (pthread_create(&tid[threadNum], NULL, decode, &sharedArray))
     {
       fprintf(stderr, "Error creating thread.\n");
